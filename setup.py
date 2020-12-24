@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="eventtracer-py",
-    version="0.0.1",
+    version="0.0.2",
     author="Shish",
     author_email="webmaster@shishnet.org",
     description="A library for tracing code into the chrome Event Trace format",
