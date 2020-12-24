@@ -17,7 +17,7 @@ Scope = Optional[str]
 
 
 class EventTracer:
-    def __init__(self, filename: Optional[str]=None):
+    def __init__(self, filename: Optional[str] = None):
         """
         Create a new EventTracer object. If $filename is specified, events
         will be written to that file in realtime. If not, they will be buffered
@@ -40,7 +40,7 @@ class EventTracer:
     def __del__(self):
         if self.fp:
             self.fp.close()
-    
+
     def __str__(self):
         return "\n".join(repr(x) for x in self.buffer)
 
@@ -167,12 +167,15 @@ class EventTracer:
     #
 
     def _profile(self, frame, action, params):
-        if action == 'call':
-            self.begin(frame.f_code.co_name, {
-                "filename": frame.f_code.co_filename,
-                "lineno": frame.f_code.co_firstlineno,
-            })
-        if action == 'return':
+        if action == "call":
+            self.begin(
+                frame.f_code.co_name,
+                {
+                    "filename": frame.f_code.co_filename,
+                    "lineno": frame.f_code.co_firstlineno,
+                },
+            )
+        if action == "return":
             self.end()
 
     def set_profile(self, active=False):
@@ -184,7 +187,7 @@ class EventTracer:
             self.end("Profiling exit")
 
     @contextmanager
-    def context(self, name: Name=None):
+    def context(self, name: Name = None):
         self.begin(name)
         yield
         self.end()
@@ -195,4 +198,5 @@ class EventTracer:
             r = func(*args, **kwargs)
             self.end()
             return r
+
         return inner

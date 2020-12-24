@@ -10,8 +10,10 @@ import json
 def nanotime():
     return int(time() * 1000000)
 
+
 def minisleep():
     sleep(0.1)
+
 
 out = ""
 
@@ -164,7 +166,7 @@ class EventTracerTest(unittest.TestCase):
             et = EventTracer(self.tmpfile)
             et.flush(self.tmpfile)
             self.assertTrue(False)
-        except Exception as e:
+        except Exception:
             self.assertTrue(True)
 
     #
@@ -201,7 +203,7 @@ class EventTracerTest(unittest.TestCase):
         try:
             buffer = json.loads(finished_data)
             self.assertEqual(2, len(buffer))
-        except Exception as e:
+        except Exception:
             print(finished_data)
             raise
 
@@ -225,7 +227,7 @@ class EventTracerTest(unittest.TestCase):
     #
     # Test language-specific bits
     #
-    def testContext(self):
+    def testContextManager(self):
         et = EventTracer()
         with et.context("outer context"):
             with et.context("inner context"):
