@@ -51,3 +51,14 @@ Format Spec:
 [Google Doc](https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/edit)
 
 Uses the JSON Array Format because that's the one which can be appended to from multiple threads
+
+
+Packaging Howto:
+----------------
+Because I forget every time I need to do this...
+
+```
+vim setup.py  # change version
+python3 setup.py sdist bdist_wheel
+python3 -m twine upload dist/*
+```
