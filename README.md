@@ -1,5 +1,10 @@
 Generating Data:
 ----------------
+Install library
+```
+python3 -m pip install eventtracer-py
+```
+
 Create tracer
 ```
 from eventtracer import EventTracer
