@@ -232,7 +232,7 @@ class EventTracer:
         if action == "return":
             self.end()
 
-    def set_profile(self, active: bool=False):
+    def set_profile(self, active: bool = False):
         if active:
             self.begin("Profiling init")
             sys.setprofile(self._profile)
