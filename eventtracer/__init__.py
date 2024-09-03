@@ -83,10 +83,10 @@ class EventTracer:
             if v is not None:
                 d[k] = v
 
-        if self.fp:
+        if self.fp is not None:
             self.fp.write(json.dumps(d) + ",\n")
             self.fp.flush()
-        elif self.buffer:
+        elif self.buffer is not None:
             self.buffer.append(d)
         else:
             raise Exception("Trace has neither file nor buffer")
