@@ -86,8 +86,10 @@ class EventTracer:
         if self.fp:
             self.fp.write(json.dumps(d) + ",\n")
             self.fp.flush()
-        else:
+        elif self.buffer:
             self.buffer.append(d)
+        else:
+            raise Exception("Trace has neither file nor buffer")
 
     #
     # Methods which map ~1:1 with the specification
@@ -242,7 +244,7 @@ class EventTracer:
 
     @contextmanager
     def context(self, name: Name):
-        self.begin(name)
+        self.begin(name or "Anonymous")
         yield
         self.end()
 
