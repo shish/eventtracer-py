@@ -26,7 +26,7 @@ class EventTracer:
         """
         self.buffer: t.Optional[t.List[t.Dict[str, t.Any]]] = None
         self.fp: t.Optional[t.Any] = None
-        self.depths: t.Optional[int, int] = {}
+        self.depths: t.Dict[int, int] = {}
 
         if filename:
             self.fp = open(filename, "a")
@@ -204,7 +204,7 @@ class EventTracer:
         self._log_event("R", {"name": name, "cat": cat, "args": args})
 
     def clock_sync(
-        self, name: Name = None, sync_id: Id = None, issue_ts: Optional[float] = None
+        self, name: Name = None, sync_id: Id = None, issue_ts: t.Optional[float] = None
     ):
         self._log_event(
             "c", {"name": name, "args": {"sync_id": sync_id, "issue_ts": issue_ts}}
@@ -232,7 +232,7 @@ class EventTracer:
         if action == "return":
             self.end()
 
-    def set_profile(self, active=False):
+    def set_profile(self, active: bool=False):
         if active:
             self.begin("Profiling init")
             sys.setprofile(self._profile)
@@ -241,7 +241,7 @@ class EventTracer:
             self.end("Profiling exit")
 
     @contextmanager
-    def context(self, name: Name = None):
+    def context(self, name: Name):
         self.begin(name)
         yield
         self.end()
