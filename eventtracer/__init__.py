@@ -2,31 +2,31 @@
 
 from io import SEEK_END
 from os import getpid
-from typing import List, Optional, Dict, Any
+import typing as t
 import json
 from time import time
 import threading
 import sys
 from contextlib import contextmanager
 
-Name = Optional[str]
-Args = Optional[Dict[str, Any]]
-Cat = Optional[str]
-Id = Optional[str]
-Scope = Optional[str]
+Name = t.Optional[str]
+Args = t.Optional[t.Dict[str, t.Any]]
+Cat = t.Optional[str]
+Id = t.Optional[str]
+Scope = t.Optional[str]
 
 
 class EventTracer:
-    def __init__(self, filename: Optional[str] = None):
+    def __init__(self, filename: t.Optional[str] = None):
         """
         Create a new EventTracer object. If $filename is specified, events
         will be written to that file in realtime. If not, they will be buffered
         for the lifetime of the object, and they can be written to a file later
         in one go with flush($filename)
         """
-        self.buffer: Optional[List[Dict[str, Any]]] = None
-        self.fp: Optional[Any] = None
-        self.depths = {}
+        self.buffer: t.Optional[t.List[t.Dict[str, t.Any]]] = None
+        self.fp: t.Optional[t.Any] = None
+        self.depths: t.Optional[int, int] = {}
 
         if filename:
             self.fp = open(filename, "a")
@@ -72,7 +72,7 @@ class EventTracer:
             fp.flush()
             # FIXME: flock(fp, LOCK_UN)
 
-    def _log_event(self, ph: str, optionals: Dict[str, Any]):
+    def _log_event(self, ph: str, optionals: t.Dict[str, t.Any]):
         d = {
             "ph": ph,
             "ts": int(time() * 1000000),
@@ -103,45 +103,95 @@ class EventTracer:
         self._log_event("E", {"name": name, "cat": cat, "args": args})
         self.depths[getpid()] -= 1
 
-    def complete(self, start: float, duration: float, name: Name = None, args: Args = None, cat: Cat = None):
-        self._log_event("X", {"ts": start, "dur": duration, "name": name, "cat": cat, "args": args})
+    def complete(
+        self,
+        start: float,
+        duration: float,
+        name: Name = None,
+        args: Args = None,
+        cat: Cat = None,
+    ):
+        self._log_event(
+            "X", {"ts": start, "dur": duration, "name": name, "cat": cat, "args": args}
+        )
 
-    def instant(self, name: Name = None, scope: Scope = None, args: Args = None, cat: Cat = None):
+    def instant(
+        self, name: Name = None, scope: Scope = None, args: Args = None, cat: Cat = None
+    ):
         # assert($scope in [g, p, t])
         self._log_event("I", {"name": name, "cat": cat, "scope": scope, "args": args})
 
     def counter(self, name: Name = None, args: Args = None, cat: Cat = None):
         self._log_event("C", {"name": name, "cat": cat, "args": args})
 
-    def async_start(self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None):
+    def async_start(
+        self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None
+    ):
         self._log_event("b", {"name": name, "id": id, "cat": cat, "args": args})
 
-    def async_instant(self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None):
+    def async_instant(
+        self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None
+    ):
         self._log_event("n", {"name": name, "id": id, "cat": cat, "args": args})
 
-    def async_end(self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None):
+    def async_end(
+        self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None
+    ):
         self._log_event("e", {"name": name, "id": id, "cat": cat, "args": args})
 
-    def flow_start(self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None):
+    def flow_start(
+        self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None
+    ):
         self._log_event("s", {"name": name, "id": id, "cat": cat, "args": args})
 
-    def flow_instant(self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None):
+    def flow_instant(
+        self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None
+    ):
         self._log_event("t", {"name": name, "id": id, "cat": cat, "args": args})
 
-    def flow_end(self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None):
+    def flow_end(
+        self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None
+    ):
         self._log_event("f", {"name": name, "id": id, "cat": cat, "args": args})
 
     # deprecated
     # def sample():P}
 
-    def object_created(self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None, scope: Scope = None):
-        self._log_event("N", {"name": name, "id": id, "cat": cat, "args": args, "scope": scope})
+    def object_created(
+        self,
+        name: Name = None,
+        id: Id = None,
+        args: Args = None,
+        cat: Cat = None,
+        scope: Scope = None,
+    ):
+        self._log_event(
+            "N", {"name": name, "id": id, "cat": cat, "args": args, "scope": scope}
+        )
 
-    def object_snapshot(self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None, scope: Scope = None):
-        self._log_event("O", {"name": name, "id": id, "cat": cat, "args": args, "scope": scope})
+    def object_snapshot(
+        self,
+        name: Name = None,
+        id: Id = None,
+        args: Args = None,
+        cat: Cat = None,
+        scope: Scope = None,
+    ):
+        self._log_event(
+            "O", {"name": name, "id": id, "cat": cat, "args": args, "scope": scope}
+        )
 
-    def object_destroyed(self, name: Name = None, id: Id = None, args: Args = None, cat: Cat = None, scope: Scope = None):
-        self._log_event("D", {"name": name, "id": id, "cat": cat, "args": args, "scope": scope})
+    def object_destroyed(
+        self,
+        name: Name = None,
+        id: Id = None,
+        args: Args = None,
+        cat: Cat = None,
+        scope: Scope = None,
+    ):
+        self._log_event(
+            "D", {"name": name, "id": id, "cat": cat, "args": args, "scope": scope}
+        )
 
     def metadata(self, name: Name = None, args: Args = None):
         self._log_event("M", {"name": name, "args": args})
@@ -153,8 +203,12 @@ class EventTracer:
     def mark(self, name: Name = None, args: Args = None, cat: Cat = None):
         self._log_event("R", {"name": name, "cat": cat, "args": args})
 
-    def clock_sync(self, name: Name = None, sync_id: Id = None, issue_ts: Optional[float] = None):
-        self._log_event("c", {"name": name, "args": {"sync_id": sync_id, "issue_ts": issue_ts}})
+    def clock_sync(
+        self, name: Name = None, sync_id: Id = None, issue_ts: Optional[float] = None
+    ):
+        self._log_event(
+            "c", {"name": name, "args": {"sync_id": sync_id, "issue_ts": issue_ts}}
+        )
 
     def context_enter(self, name: Name = None, id: Id = None):
         self._log_event("(", {"name": name, "id": id})
